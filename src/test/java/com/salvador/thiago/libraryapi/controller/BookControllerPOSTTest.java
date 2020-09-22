@@ -1,4 +1,4 @@
-package com.salvador.thiago.libraryapi;
+package com.salvador.thiago.libraryapi.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.salvador.thiago.libraryapi.dto.BookDTO;

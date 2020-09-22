@@ -1,12 +1,12 @@
 package com.salvador.thiago.libraryapi.dto;
 
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
-@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class BookDTO {
     private Long id;
     private String title;

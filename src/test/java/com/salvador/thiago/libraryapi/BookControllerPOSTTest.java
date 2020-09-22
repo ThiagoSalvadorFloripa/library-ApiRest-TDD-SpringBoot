@@ -1,12 +1,18 @@
 package com.salvador.thiago.libraryapi;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.salvador.thiago.libraryapi.dto.BookDTO;
+import com.salvador.thiago.libraryapi.model.Book;
+import com.salvador.thiago.libraryapi.service.BookService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.BDDMockito;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -28,24 +34,46 @@ public class BookControllerPOSTTest {
     @Autowired
     MockMvc mvc; // moca as requisiçoes
 
+    @MockBean // instacia mocada
+    BookService service;
+
     @Test
     @DisplayName("Deve criar um livro com sucesso")
     public void createBookTest() throws Exception{
+
         // cenario
-        String json = new ObjectMapper().writeValueAsString(null);
+        BookDTO bookDTO = BookDTO.builder()
+                .author("Paulo Freire")
+                .title("Alfabeto no Brasil")
+                .isbn("12233")
+                .build();
+
+        //para objeto de retorno
+        Book saveBook = Book.builder()
+                .id(10l)
+                .author("Paulo Freire")
+                .title("Alfabeto no Brasil")
+                .isbn("12233")
+                .build();
+
+        // simulando comportamento do metodo save
+        BDDMockito.given(service.save(Mockito.any(Book.class))).willReturn(saveBook);
+
+        String json = new ObjectMapper().writeValueAsString(bookDTO);
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
                 .post(URL_BASE)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(json); // corpo
-        // execucao
+
+        // execucao e assertivos
         mvc
                 .perform(request)
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("id").isNotEmpty())
-                .andExpect(jsonPath("title").value("Não espere pelo epitafio"))
-                .andExpect(jsonPath("author").value("Mario Cortela"))
-                .andExpect(jsonPath("isbn").value("1233445"));
+                .andExpect(jsonPath("title").value(bookDTO.getTitle()))
+                .andExpect(jsonPath("author").value(bookDTO.getAuthor()))
+                .andExpect(jsonPath("isbn").value(bookDTO.getIsbn()));
     }
 }
